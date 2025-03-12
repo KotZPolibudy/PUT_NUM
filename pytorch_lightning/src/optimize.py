@@ -6,6 +6,7 @@ import uuid
 NUM_CONTAINERS = 4  # Ile eksperymentów równolegle?
 N_TRIALS = 20  # Ile testów w sumie?
 
+
 def objective(trial):
     return {
         'lr': trial.suggest_loguniform('lr', 1e-5, 1e-1),
@@ -13,6 +14,7 @@ def objective(trial):
         'optimizer_type': trial.suggest_categorical('optimizer_type', ['adam', 'sgd']),
         'activation_function': trial.suggest_categorical('activation_function', ['relu', 'leaky_relu'])
     }
+
 
 tasks = [objective(optuna.trial.FixedTrial({})) for _ in range(N_TRIALS)]
 running_containers = []
