@@ -1,0 +1,12 @@
+services:
+  pytorch_lightning:
+    container_name: dice-ocr
+    stdin_open: true
+    tty: true
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ../src:/app
+    environment:
+      - PYTHONUNBUFFERED=1
