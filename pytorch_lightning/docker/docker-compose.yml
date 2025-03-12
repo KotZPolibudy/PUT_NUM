@@ -1,0 +1,17 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  trainer:
+    image: dice-ocr
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    deploy:
+      mode: replicated
+      replicas: 4  # liczba kontenerów dla równoległych eksperymentów
+    environment:
+      - HYPERPARAMS={"lr":0.001,"hidden_units":128,"optimizer_type":"adam","activation_function":"relu"}
+    volumes:
+      - ../src:/app
+    restart: unless-stopped
