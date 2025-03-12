@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 8080
 
 # Domyślna komenda do uruchomienia kontenera
-CMD ["python", "main.py"]
+CMD ["python", "test.py"]
