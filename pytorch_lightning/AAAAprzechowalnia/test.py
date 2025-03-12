@@ -14,12 +14,12 @@ import optuna
 mlflow_logger = MLFlowLogger(
     experiment_name='Dice_Roll_Experiment',
     tracking_uri='http://127.0.0.1:5000',
-    save_dir='./mlruns'
+    save_dir='../mlruns'
 )
 
 
 class DiceDataModule(L.LightningDataModule):
-    def __init__(self, data_dir='./data', batch_size=16, image_size=(64, 64)):
+    def __init__(self, data_dir='../data', batch_size=16, image_size=(64, 64)):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
@@ -170,7 +170,7 @@ def objective(trial):
 
 if __name__ == '__main__':
     study = optuna.create_study(direction='minimize')
-    study.optimize(objective, n_trials=2)
+    study.optimize(objective, n_trials=10)
 
     print('Best hyperparameters found: ', study.best_params)
     print('Best validation loss: ', study.best_value)
