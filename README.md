@@ -1,2 +1,2 @@
 # PUT_NUM
-Narzędzia Uczenia Maszynowego (Przedmiot - Janek)
+Narzędzia Uczenia Maszynowego
