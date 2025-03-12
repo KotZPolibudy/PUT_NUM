@@ -8,5 +8,6 @@ services:
       dockerfile: docker/Dockerfile
     volumes:
       - ../src:/app
+      - ../data:/app/data
     environment:
       - PYTHONUNBUFFERED=1

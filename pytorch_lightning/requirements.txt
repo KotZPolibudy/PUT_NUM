@@ -1,6 +1,3 @@
-torch
 torchvision
-lightning
-matplotlib
 optuna
 mlflow
