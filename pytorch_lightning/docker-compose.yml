@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.5.0
+    container_name: mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlruns
+    environment:
+      - MLFLOW_TRACKING_URI=http://127.0.0.1:5000
+
+  trainer:
+    image: dice-ocr
+    deploy:
+      mode: replicated
+      replicas: 4   # tutaj ustalenie liczby kontenerów biegających na raz
+    environment:
+      - HYPERPARAMS={}
