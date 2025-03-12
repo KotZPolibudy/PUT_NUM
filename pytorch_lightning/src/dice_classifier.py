@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import lightning as L
 from torch.optim import Adam, SGD
+import matplotlib.pyplot as plt
 
 
 class DiceClassifier(L.LightningModule):
@@ -12,12 +13,15 @@ class DiceClassifier(L.LightningModule):
         self.optimizer_type = optimizer_type
         self.activation_function = activation_function
 
-        activation_functions = {
-            'relu': nn.ReLU(),
-            'leaky_relu': nn.LeakyReLU(),
-            'sigmoid': nn.Sigmoid()
-        }
-        self.activation = activation_functions.get(activation_function, nn.ReLU())
+        if activation_function == 'relu':
+            self.activation = nn.ReLU()
+        elif activation_function == 'leaky_relu':
+            self.activation = nn.LeakyReLU()
+        elif activation_function == 'sigmoid':
+            self.activation = nn.Sigmoid()
+        else:
+            # Default to ReLU
+            self.activation = nn.ReLU()
 
         self.model = nn.Sequential(
             nn.Conv2d(1, 32, kernel_size=3),
@@ -35,35 +39,55 @@ class DiceClassifier(L.LightningModule):
             nn.Flatten(),
             nn.Linear(128 * 6 * 6, hidden_units),
             self.activation,
-            nn.Linear(hidden_units, 8)  # 8 klas
+            nn.Linear(hidden_units, 8)  # 8 classes for numbers 1–8
         )
 
+        self.train_losses = []
+        self.val_losses = []
+
     def forward(self, x):
-        return F.log_softmax(self.model(x), dim=1)
+        return self.model(x)
 
     def training_step(self, batch, batch_idx):
         x, y = batch
         logits = self(x)
-        loss = F.nll_loss(logits, y)
+        loss = F.cross_entropy(logits, y)
         acc = (logits.argmax(dim=1) == y).float().mean()
 
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
         self.log('train_acc', acc, on_step=True, on_epoch=True, prog_bar=True)
+
+        self.train_losses.append(loss.item())
         return loss
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         logits = self(x)
-        loss = F.nll_loss(logits, y)
+        loss = F.cross_entropy(logits, y)
         acc = (logits.argmax(dim=1) == y).float().mean()
 
         self.log('val_loss', loss, on_epoch=True, prog_bar=True)
         self.log('val_acc', acc, on_epoch=True, prog_bar=True)
+
+        self.val_losses.append(loss.item())
         return loss
 
     def configure_optimizers(self):
-        optimizers = {
-            'adam': Adam(self.parameters(), lr=self.lr),
-            'sgd': SGD(self.parameters(), lr=self.lr, momentum=0.9)
-        }
-        return optimizers.get(self.optimizer_type, Adam(self.parameters(), lr=self.lr))
+        if self.optimizer_type == 'adam':
+            optimizer = Adam(self.parameters(), lr=self.lr)
+        elif self.optimizer_type == 'sgd':
+            optimizer = SGD(self.parameters(), lr=self.lr, momentum=0.9)
+        else:
+            # Default to Adam
+            optimizer = Adam(self.parameters(), lr=self.lr)
+        return optimizer
+
+    def on_epoch_end(self):
+        plt.figure(figsize=(10, 6))
+        plt.plot(self.train_losses, label='Training Loss')
+        plt.plot(self.val_losses, label='Validation Loss')
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.legend()
+        plt.title('Training and Validation Loss Over Epochs')
+        plt.show()
