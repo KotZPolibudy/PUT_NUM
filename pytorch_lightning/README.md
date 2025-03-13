@@ -13,12 +13,17 @@ python .\src\test.py
 
 Dobra, to teraz instrukcja wersji dockerowej, równoległej i ogólnie magicznej.
 
-### Krok 1
+### Krok 1 - build kontenera
 
 docker-compose -f docker/docker-compose.yml build
 
-### Krok 2
-(optymalizacja hiperparametrów)
+
+### Krok 2 - Włącz mlflow
+
+mlflow ui
+
+
+### Krok 3 - optymalizacja hiperparametrów
 
 python src/optimize.py
 
