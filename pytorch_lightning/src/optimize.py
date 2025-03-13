@@ -49,23 +49,31 @@ def objective(trial):
 
 if __name__ == '__main__':
     study = optuna.create_study(direction='minimize')
+
+    print("TEST")
+    # TODO To już uruchamia testy, więc trzeba chyba samemo przydzielić i wylosować te N_TRIALS albo znaleźć coś w dokumentacji
     study.optimize(objective, n_trials=N_TRIALS)
+    print("TEST2")
 
     tasks = [t.params for t in study.trials]
     running_containers = []
 
     while tasks or running_containers:
+        print("DEBUGG")
         running_containers = [p for p in running_containers if p.poll() is None]
 
         while len(running_containers) < NUM_CONTAINERS and tasks:
+            print("DEBUG2")
             # Zrzut parametrów do pliku json z odpowiednim uuid
             params = tasks.pop(0)
             param_file = os.path.abspath(f"data/params_{uuid.uuid4().hex}.json")
             with open(param_file, "w") as f:
                 json.dump(params, f)
 
+            print("DOCKER DEBUG")
             # Uruchomienie kontenera, który włączy train.py i zaczyta odpowiednie parametry z pliku json
             try:
+                print("DOCKER DEBUG2")
                 process = subprocess.Popen(
                     ["docker", "run", "--rm", "-v", f"{param_file}:/app/params.json", "dice-ocr"],
                     stderr=subprocess.PIPE
