@@ -28,8 +28,8 @@ mlflow ui
 python src/optimize.py
 
 
-Potencjalnie, zamiast tego:
 
-docker run --rm -v $(pwd)/data:/app/data dice-ocr 
 
-ale to dla trenowania jednego konkretnego modelu. (NIE TESTOWANE!!!)
+
+Ok, mam pytania, idę dręczyć Janka dzisiaj.
+Czy optuna ma być tylko na głównym skrypcie, i odpalać trening pytorch lightning na każdym dockerze, czy optuna ma być na każdym dockerze i mieć rozproszone środowisko do wykonania eksperymentu (zamiast puszczać eksperymenty równolegle z centralizowanego środowiska)

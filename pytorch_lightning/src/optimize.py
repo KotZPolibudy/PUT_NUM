@@ -48,7 +48,11 @@ def objective(trial):
 
 
 if __name__ == '__main__':
-    study = optuna.create_study(direction='minimize')
+    study = optuna.create_study(
+        study_name='testy1',
+        direction='minimize',
+        load_if_exists=True
+    )
 
     print("TEST")
     # TODO To już uruchamia testy, więc trzeba chyba samemo przydzielić i wylosować te N_TRIALS albo znaleźć coś w dokumentacji
