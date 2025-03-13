@@ -51,10 +51,38 @@ if __name__ == '__main__':
     study = optuna.create_study(direction='minimize')
     study.optimize(objective, n_trials=N_TRIALS)
 
-    print('Best hyperparameters found: ', study.best_params)
+    tasks = [t.params for t in study.trials]
+    running_containers = []
+
+    while tasks or running_containers:
+        running_containers = [p for p in running_containers if p.poll() is None]
+
+        while len(running_containers) < NUM_CONTAINERS and tasks:
+            # Zrzut parametrów do pliku json z odpowiednim uuid
+            params = tasks.pop(0)
+            param_file = os.path.abspath(f"data/params_{uuid.uuid4().hex}.json")
+            with open(param_file, "w") as f:
+                json.dump(params, f)
+
+            # Uruchomienie kontenera, który włączy train.py i zaczyta odpowiednie parametry z pliku json
+            try:
+                process = subprocess.Popen(
+                    ["docker", "run", "--rm", "-v", f"{param_file}:/app/params.json", "dice-ocr"],
+                    stderr=subprocess.PIPE
+                )
+                running_containers.append(process)
+            except Exception as e:
+                print(f"Błąd podczas uruchamiania kontenera: {e}")
+
+    # Oczekiwanie na ostatnie kontenery
+    for p in running_containers:
+        p.wait()
+
+    # Print best found params
+    best_params = study.best_params
+    print('Best hyperparameters found: ', best_params)
     print('Best validation loss: ', study.best_value)
 
-    best_params = study.best_params
     best_model = DiceClassifier(
         lr=best_params['lr'],
         hidden_units=best_params['hidden_units'],
@@ -67,5 +95,3 @@ if __name__ == '__main__':
     )
     data_module = DiceDataModule()
     trainer.fit(best_model, data_module.train_dataloader(), data_module.val_dataloader())
-
-    # TODO - tutaj trzeba na pewno dodać odpalanie kontenerów. Bo obecnie, to to jest test.py tylko rozbity na 3 pliki
