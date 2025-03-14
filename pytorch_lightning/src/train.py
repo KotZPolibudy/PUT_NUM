@@ -10,6 +10,8 @@ import lightning as L
 MLFLOW_TRACKING_URI = "http://mlflow:5000"
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
+num_samples = 5  # ilość prób (NA KAŻDEJ MASZYNIE)
+
 def train_model(config):
     mlflow.start_run()  # Start nowego eksperymentu
 
@@ -49,7 +51,7 @@ tuner = tune.Tuner(
     tune_config=tune.TuneConfig(
         metric="loss",
         mode="min",
-        num_samples=10  # Liczba prób
+        num_samples=num_samples
     ),
     param_space=search_space
 )
