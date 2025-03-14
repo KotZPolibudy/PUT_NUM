@@ -26,5 +26,5 @@ for process in running_containers:
 
 print("DONE")
 # Wyniki
-# print(f"Najlepsze parametry: {study.best_params}")
-# print(f"Najlepsza wartość straty: {study.best_value}")
+print(f"Najlepsze parametry: {study.best_params}")
+print(f"Najlepsza wartość straty: {study.best_value}")
