@@ -3,7 +3,7 @@ version: "3.8"
 services:
   trainer:
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile
     deploy:
       mode: replicated
