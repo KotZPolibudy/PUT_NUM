@@ -2,6 +2,7 @@ import os
 import mlflow
 import ray
 from ray import tune
+from ray.air.integrations.mlflow import MLflowLoggerCallback  # Poprawna integracja
 from dice_classifier import DiceClassifier
 from data_module import DiceDataModule
 import lightning as L
@@ -13,8 +14,7 @@ mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 num_samples = 5  # ilość prób (NA KAŻDEJ MASZYNIE)
 
 def train_model(config):
-    mlflow.start_run()  # Start nowego eksperymentu
-
+    """ Funkcja trenowania modelu dla Ray Tune """
     lr = config["lr"]
     hidden_units = config["hidden_units"]
     optimizer_type = config["optimizer_type"]
@@ -28,16 +28,10 @@ def train_model(config):
 
     trainer.fit(model, data_module)
 
-    # Logowanie wyników do MLflow
-    mlflow.log_params(config)
-    mlflow.log_metric("loss", min(model.val_losses))
-
-    mlflow.end_run()  # Zakończenie eksperymentu
-
-    # Logowanie wyniku do Ray Tune
+    # Logowanie do Ray Tune (MLflow zrobi to automatycznie)
     tune.report(loss=min(model.val_losses))
 
-# Definicja zakresu poszukiwań
+# Definicja przestrzeni hiperparametrów
 search_space = {
     "lr": tune.loguniform(1e-5, 1e-1),
     "hidden_units": tune.randint(64, 512),
@@ -45,17 +39,26 @@ search_space = {
     "activation_function": tune.choice(["relu", "leaky_relu", "sigmoid"])
 }
 
-# Uruchamianie optymalizacji
-tuner = tune.Tuner(
-    tune.with_resources(train_model, resources={"cpu": 2, "gpu": 0}),
-    tune_config=tune.TuneConfig(
-        metric="loss",
-        mode="min",
-        num_samples=num_samples
-    ),
-    param_space=search_space
-)
-
 if __name__ == "__main__":
-    ray.init(ignore_reinit_error=True)
+    # Inicjalizacja Ray – automatyczne wykrywanie klastra
+    ray.init(address="auto", ignore_reinit_error=True)  # "auto" = użyj istniejącego klastra
+
+    # Tworzenie MLflow Callback dla Ray Tune
+    mlflow_callback = MLflowLoggerCallback(
+        tracking_uri=MLFLOW_TRACKING_URI,
+        experiment_name="ray_tune_experiment"
+    )
+
+    # Konfiguracja i uruchomienie optymalizacji
+    tuner = tune.Tuner(
+        tune.with_resources(train_model, resources={"cpu": 2, "gpu": 0}),
+        tune_config=tune.TuneConfig(
+            metric="loss",
+            mode="min",
+            num_samples=num_samples
+        ),
+        param_space=search_space,
+        run_config=ray.air.RunConfig(callbacks=[mlflow_callback])  # 🔹 Ray Tune loguje do MLflow
+    )
+
     tuner.fit()
