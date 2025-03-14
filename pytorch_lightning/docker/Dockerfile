@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt requirements.txt
 
 # 5. Instalacja bibliotek Pythona
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --ignore-installed -r requirements.txt
 
 # 6. Skopiowanie całego kodu aplikacji
 COPY . .
