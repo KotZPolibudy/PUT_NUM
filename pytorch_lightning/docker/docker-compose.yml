@@ -1,19 +1,30 @@
 version: "3.8"
 
 services:
-  trainer:
-    image: dice-ocr
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-    deploy:
-      mode: replicated
-      replicas: 4  # Liczba równoległych kontenerów
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
     environment:
-      - STUDY_NAME=dice_optimization
-      - DB_PATH=sqlite:////app/data/optuna.db  # path fix for docker
+      POSTGRES_USER: mlflow
+      POSTGRES_PASSWORD: mlflow_pass
+      POSTGRES_DB: mlflow_db
+    ports:
+      - "5432:5432"
     volumes:
-      - ../src:/app
-      - ./data:/app/data
-      - ./optuna.db:/app/data/optuna.db  # Plik bazy w katalogu data
-    restart: unless-stopped
+      - postgres_data:/var/lib/postgresql/data
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow
+    container_name: mlflow_server
+    restart: always
+    environment:
+      - MLFLOW_TRACKING_URI=postgresql://mlflow:mlflow_pass@postgres:5432/mlflow_db
+    command: mlflow server --backend-store-uri postgresql://mlflow:mlflow_pass@postgres:5432/mlflow_db --host 0.0.0.0 --port 5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  trainer:
+    image: dice-ocr
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    deploy:
+      mode: replicated
+      replicas: 4  # Liczba równoległych kontenerów
+    environment:
+      - STUDY_NAME=dice_optimization
+      - DB_PATH=sqlite:////app/data/optuna.db  # path fix for docker
+    volumes:
+      - ../src:/app
+      - ./data:/app/data
+      - ./optuna.db:/app/data/optuna.db  # Plik bazy w katalogu data
+    restart: unless-stopped

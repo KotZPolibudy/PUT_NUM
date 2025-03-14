@@ -1,32 +1,53 @@
 import os
-import optuna
+import mlflow
+import ray
+from ray import tune
+from ray.tune.integration.mlflow import mlflow_mixin
 from dice_classifier import DiceClassifier
 from data_module import DiceDataModule
 import lightning as L
 
-# Pobranie zmiennych środowiskowych
-STUDY_NAME = os.getenv("STUDY_NAME", "dice_optimization")
-DB_PATH = os.getenv("DB_PATH", "sqlite:///optuna.db")
-data_dir = "/app/data"
+# Ustawienia MLflow
+MLFLOW_TRACKING_URI = "http://mlflow:5000"
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
-# Funkcja optymalizacyjna
-def objective(trial):
-    lr = trial.suggest_float("lr", 1e-5, 1e-1, log=True)
-    hidden_units = trial.suggest_int("hidden_units", 64, 512)
-    optimizer_type = trial.suggest_categorical("optimizer_type", ["adam", "sgd"])
-    activation_function = trial.suggest_categorical("activation_function", ["relu", "leaky_relu", "sigmoid"])
+@mlflow_mixin
+def train_model(config):
+    lr = config["lr"]
+    hidden_units = config["hidden_units"]
+    optimizer_type = config["optimizer_type"]
+    activation_function = config["activation_function"]
 
-    model = DiceClassifier(lr=lr, hidden_units=hidden_units, optimizer_type=optimizer_type,
-                           activation_function=activation_function)
+    model = DiceClassifier(lr=lr, hidden_units=hidden_units,
+                           optimizer_type=optimizer_type, activation_function=activation_function)
 
-    trainer = L.Trainer(max_epochs=10, enable_checkpointing=False, enable_model_summary=False)
-    data_module = DiceDataModule(data_dir=data_dir)
-    trainer.fit(model, data_module.train_dataloader(), data_module.val_dataloader())
+    trainer = L.Trainer(max_epochs=10)
+    data_module = DiceDataModule()
 
-    return min(model.val_losses)
+    trainer.fit(model, data_module)
 
+    # Logowanie wyniku do Ray Tune
+    tune.report(loss=min(model.val_losses))
 
-# Połączenie z bazą Optuny i uruchomienie optymalizacji
-study = optuna.create_study(study_name=STUDY_NAME, direction="minimize", storage=DB_PATH, load_if_exists=True)
-# study = optuna.load_study(study_name=STUDY_NAME, storage=DB_PATH)
-study.optimize(objective, n_trials=5)  # Każdy kontener wykonuje kilka prób
+# Definicja zakresu poszukiwań
+search_space = {
+    "lr": tune.loguniform(1e-5, 1e-1),
+    "hidden_units": tune.randint(64, 512),
+    "optimizer_type": tune.choice(["adam", "sgd"]),
+    "activation_function": tune.choice(["relu", "leaky_relu", "sigmoid"])
+}
+
+# Uruchamianie optymalizacji
+tuner = tune.Tuner(
+    tune.with_resources(train_model, resources={"cpu": 2, "gpu": 0}),
+    tune_config=tune.TuneConfig(
+        metric="loss",
+        mode="min",
+        num_samples=10  # Liczba prób
+    ),
+    param_space=search_space
+)
+
+if __name__ == "__main__":
+    ray.init(ignore_reinit_error=True)
+    tuner.fit()
