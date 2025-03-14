@@ -1,34 +1,30 @@
-# optimize.py
 import optuna
 import subprocess
-import time
 
-STUDY_NAME = "dice_hyperopt"
-STORAGE_URL = "sqlite:///optuna_study.db"
-NUM_CONTAINERS = 4  # Ile eksperymentów równolegle?
-N_TRIALS = 20  # Ile testów w sumie?
+STUDY_NAME = "dice_optimization"
+DB_PATH = "sqlite:///optuna.db"
+NUM_CONTAINERS = 4  # Ilość równoległych kontenerów
+N_TRIALS = 20  # Ilość prób
 
-# Tworzymy lub wczytujemy istniejące study
-study = optuna.create_study(
-    study_name=STUDY_NAME,
-    storage=STORAGE_URL,
-    direction="minimize",
-    load_if_exists=True
-)
+# Tworzenie/wczytanie Optuna Study
+study = optuna.create_study(study_name=STUDY_NAME, direction="minimize", storage=DB_PATH, load_if_exists=True)
 
-# Uruchamiamy kontenery równolegle
+print(f"Uruchamiam {NUM_CONTAINERS} kontenerów...")
+print("TESTER")
 running_containers = []
+
 for _ in range(NUM_CONTAINERS):
-    process = subprocess.Popen(
-        ["docker", "run", "--rm", "--network=host", "dice-ocr"],
-        stderr=subprocess.PIPE
-    )
+    process = subprocess.Popen(["docker", "run", "--rm",
+                                "-e", f"STUDY_NAME={STUDY_NAME}",
+                                "-e", f"DB_PATH={DB_PATH}",
+                                "dice-ocr"])
     running_containers.append(process)
 
-# Czekamy na zakończenie kontenerów
-for p in running_containers:
-    p.wait()
+# Czekamy na zakończenie
+for process in running_containers:
+    process.wait()
 
-print("Wszystkie eksperymenty zakończone!")
-print("Najlepsze parametry:", study.best_params)
-print("Najlepsza wartość:", study.best_value)
+print("DONE")
+# Wyniki
+# print(f"Najlepsze parametry: {study.best_params}")
+# print(f"Najlepsza wartość straty: {study.best_value}")

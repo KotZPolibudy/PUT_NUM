@@ -1,5 +1,4 @@
-# docker-compose.yml
-version: '3.8'
+version: "3.8"
 
 services:
   trainer:
@@ -9,9 +8,12 @@ services:
       dockerfile: docker/Dockerfile
     deploy:
       mode: replicated
-      replicas: 4  # liczba kontenerów dla równoległych eksperymentów
+      replicas: 4  # Liczba równoległych kontenerów
+    environment:
+      - STUDY_NAME=dice_optimization
+      - DB_PATH=sqlite:///optuna.db
     volumes:
       - ../src:/app
-      - ../optuna_study.db:/app/optuna_study.db
-    network_mode: "host"
-
+      - ./data:/app/data
+      - ./optuna.db:/app/optuna.db
+    restart: unless-stopped

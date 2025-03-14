@@ -9,4 +9,4 @@ RUN pip install --no-cache-dir --ignore-installed -r requirements.txt
 
 COPY . .
 
-CMD ["python", "train.py"]
+CMD ["python", "src/train.py"]
