@@ -1,6 +1,7 @@
 mlflow
 ray[tune]
 ray[tune-mlflow]
+ray[client]
 torch
 lightning
 optuna

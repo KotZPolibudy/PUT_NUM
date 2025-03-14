@@ -1,5 +1,17 @@
 
 services:
+  ray_head:
+    image: rayproject/ray:latest
+    command: ["ray", "start", "--head", "--port=6379"]
+    ports:
+      - "6379:6379"  # Port do komunikacji między węzłami Ray
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - RAY_ADDRESS=ray://ray_head:6379
+    restart: unless-stopped
+
   trainer:
     build:
       context: .
@@ -9,6 +21,7 @@ services:
       replicas: 2
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - RAY_ADDRESS=ray://ray_head:6379
       - POSTGRES_USER=mlflow
       - POSTGRES_PASSWORD=mlflow
       - POSTGRES_DB=mlflow
@@ -19,6 +32,7 @@ services:
     restart: unless-stopped
     depends_on:
       - mlflow
+      - ray_head
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.9.2

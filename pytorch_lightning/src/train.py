@@ -2,10 +2,13 @@ import os
 import mlflow
 import ray
 from ray import tune
-from ray.air.integrations.mlflow import MLflowLoggerCallback  # Poprawna integracja
+from ray.air.integrations.mlflow import MLflowLoggerCallback
 from dice_classifier import DiceClassifier
 from data_module import DiceDataModule
 import lightning as L
+
+# Pobranie adresu klastra Ray
+ray_address = os.getenv("RAY_ADDRESS", "auto")  # Pobiera RAY_ADDRESS z env
 
 # Ustawienia MLflow
 MLFLOW_TRACKING_URI = "http://mlflow:5000"
@@ -40,8 +43,8 @@ search_space = {
 }
 
 if __name__ == "__main__":
-    # Inicjalizacja Ray – automatyczne wykrywanie klastra
-    ray.init(address="auto", ignore_reinit_error=True)  # "auto" = użyj istniejącego klastra
+    # Połącz się z istniejącym klastrem Ray
+    ray.init(address=ray_address, ignore_reinit_error=True)
 
     # Tworzenie MLflow Callback dla Ray Tune
     mlflow_callback = MLflowLoggerCallback(
@@ -58,7 +61,7 @@ if __name__ == "__main__":
             num_samples=num_samples
         ),
         param_space=search_space,
-        run_config=ray.air.RunConfig(callbacks=[mlflow_callback])  # 🔹 Ray Tune loguje do MLflow
+        run_config=ray.air.RunConfig(callbacks=[mlflow_callback])
     )
 
     tuner.fit()
