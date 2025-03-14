@@ -12,7 +12,7 @@ python .\src\test.py
 
 
 Dobra, to teraz instrukcja wersji dockerowej, równoległej i ogólnie magicznej.
-
+# Uwaga! Ten obraz ma >22GB
 ### Krok 1 - build kontenera
 
 docker-compose -f docker/docker-compose.yml build
