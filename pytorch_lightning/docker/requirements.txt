@@ -1,0 +1,6 @@
+mlflow
+ray[tune]
+torch
+pytorch-lightning
+optuna
+psycopg2

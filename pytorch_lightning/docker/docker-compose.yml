@@ -14,6 +14,7 @@ services:
       - POSTGRES_PASSWORD=mlflow
       - POSTGRES_DB=mlflow
     volumes:
+      - ./src:/app
       - ./data:/app/data
       - ./mlruns:/app/mlruns
     restart: unless-stopped

@@ -16,7 +16,7 @@ COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir --ignore-installed -r requirements.txt
 
 # 6. Skopiowanie całego kodu aplikacji
-COPY . .
+COPY ../src/ /app/
 
 # 7. Ustawienie zmiennych środowiskowych dla MLflow
 ENV MLFLOW_TRACKING_URI=http://mlflow:5000
