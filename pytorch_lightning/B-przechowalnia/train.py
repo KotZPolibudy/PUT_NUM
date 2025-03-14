@@ -8,6 +8,8 @@ param_file = "params.json"
 with open(param_file, "r") as f:
     hyperparams = json.load(f)
 
+print(hyperparams)  # Debug
+
 model = DiceClassifier(**hyperparams)
 data_module = DiceDataModule()
 

@@ -10,8 +10,8 @@ services:
     deploy:
       mode: replicated
       replicas: 4  # liczba kontenerów dla równoległych eksperymentów
-    environment:
-      - HYPERPARAMS={"lr":0.001,"hidden_units":128,"optimizer_type":"adam","activation_function":"relu"}
     volumes:
       - ../src:/app
-    restart: unless-stopped
+      - ../optuna_study.db:/app/optuna_study.db
+    network_mode: "host"
+
