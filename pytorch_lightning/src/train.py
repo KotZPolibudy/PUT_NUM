@@ -2,7 +2,6 @@ import os
 import mlflow
 import ray
 from ray import tune
-from ray.tune.integration.mlflow import mlflow_mixin
 from dice_classifier import DiceClassifier
 from data_module import DiceDataModule
 import lightning as L
@@ -11,8 +10,9 @@ import lightning as L
 MLFLOW_TRACKING_URI = "http://mlflow:5000"
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
-@mlflow_mixin
 def train_model(config):
+    mlflow.start_run()  # Start nowego eksperymentu
+
     lr = config["lr"]
     hidden_units = config["hidden_units"]
     optimizer_type = config["optimizer_type"]
@@ -25,6 +25,12 @@ def train_model(config):
     data_module = DiceDataModule()
 
     trainer.fit(model, data_module)
+
+    # Logowanie wyników do MLflow
+    mlflow.log_params(config)
+    mlflow.log_metric("loss", min(model.val_losses))
+
+    mlflow.end_run()  # Zakończenie eksperymentu
 
     # Logowanie wyniku do Ray Tune
     tune.report(loss=min(model.val_losses))

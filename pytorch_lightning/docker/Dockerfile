@@ -15,9 +15,6 @@ COPY ../requirements.txt /app/requirements.txt
 # 5. Instalacja bibliotek Pythona
 RUN pip install --no-cache-dir --ignore-installed -r requirements.txt
 
-# 6. Instalacja Ray Tune z obsługą MLflow
-RUN pip install -U "ray[tune]" "ray[tune-mlflow]"
-
 # 7. Skopiowanie całego kodu aplikacji
 COPY ../src/ /app/
 

@@ -1,6 +1,8 @@
 mlflow
 ray[tune]
+ray[tune-mlflow]
 torch
+lightning
 pytorch-lightning
 optuna
 psycopg2
