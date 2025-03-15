@@ -44,13 +44,17 @@ search_space = {
 
 if __name__ == "__main__":
     # Połącz się z istniejącym klastrem Ray
+    print("ADRES: ", ray_address)
     ray.init(address=ray_address, ignore_reinit_error=True)
+    print("test1")
 
     # Tworzenie MLflow Callback dla Ray Tune
     mlflow_callback = MLflowLoggerCallback(
         tracking_uri=MLFLOW_TRACKING_URI,
         experiment_name="ray_tune_experiment"
     )
+
+    print("test2")
 
     # Konfiguracja i uruchomienie optymalizacji
     tuner = tune.Tuner(
@@ -64,4 +68,7 @@ if __name__ == "__main__":
         run_config=ray.air.RunConfig(callbacks=[mlflow_callback])
     )
 
+    print("test3")
+
     tuner.fit()
+    print("test4")

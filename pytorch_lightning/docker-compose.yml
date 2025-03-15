@@ -1,16 +1,25 @@
+networks:
+  ray_network:
+    driver: bridge
+
 
 services:
   ray_head:
     image: rayproject/ray:latest
-    command: ["ray", "start", "--head", "--port=6379"]
+    command: >
+      bash -c "ray start --head --port=6379 --dashboard-host=0.0.0.0 && tail -f /dev/null"
     ports:
       - "6379:6379"  # Port do komunikacji między węzłami Ray
-    deploy:
-      mode: replicated
-      replicas: 1
+      - "8265:8265" # Port do dashboarda ray
     environment:
       - RAY_ADDRESS=ray://ray_head:6379
     restart: unless-stopped
+    shm_size: "4g"
+    depends_on:
+      - db
+      - mlflow
+    networks:
+      - ray_network
 
   trainer:
     build:
@@ -21,7 +30,7 @@ services:
       replicas: 2
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
-      - RAY_ADDRESS=ray://ray_head:6379
+      - RAY_ADDRESS=ray_head:6379 # czy to jest poprawny adres?
       - POSTGRES_USER=mlflow
       - POSTGRES_PASSWORD=mlflow
       - POSTGRES_DB=mlflow
@@ -33,6 +42,9 @@ services:
     depends_on:
       - mlflow
       - ray_head
+      - db
+    networks:
+      - ray_network
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.9.2
@@ -46,6 +58,8 @@ services:
       - ./mlruns:/mlflow
     depends_on:
       - db
+    networks:
+      - ray_network
 
   db:
     image: postgres:15
@@ -58,3 +72,5 @@ services:
     ports:
       - "5432:5432"
     restart: unless-stopped
+    networks:
+      - ray_network
