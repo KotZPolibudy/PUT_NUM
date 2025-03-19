@@ -11,13 +11,6 @@ from torchvision import transforms, datasets
 import matplotlib.pyplot as plt
 import optuna
 
-mlflow_logger = MLFlowLogger(
-    experiment_name='Dice_Roll_Experiment',
-    tracking_uri='http://127.0.0.1:5000',
-    save_dir='../mlruns'
-)
-
-
 class DiceDataModule(L.LightningDataModule):
     def __init__(self, data_dir='../data', batch_size=16, image_size=(64, 64)):
         super().__init__()
@@ -153,11 +146,18 @@ def objective(trial):
     optimizer_type = trial.suggest_categorical('optimizer_type', ['adam', 'sgd'])
     activation_function = trial.suggest_categorical('activation_function', ['relu', 'leaky_relu', 'sigmoid'])
 
+    trial_logger = MLFlowLogger(
+        experiment_name="Dice_Roll_Experiment",
+        tracking_uri="http://127.0.0.1:5000",
+        save_dir="../mlruns",
+        run_name=f'trial_{trial.number}'
+    )
+
     model = DiceClassifier(lr=lr, hidden_units=hidden_units, optimizer_type=optimizer_type,
                            activation_function=activation_function)
     trainer = L.Trainer(
         max_epochs=10,
-        logger=mlflow_logger,
+        logger=trial_logger,
         enable_checkpointing=False,
         enable_model_summary=False
     )
@@ -179,6 +179,13 @@ if __name__ == '__main__':
     print('Best hyperparameters found: ', study.best_params)
     print('Best validation loss: ', study.best_value)
 
+    final_logger = MLFlowLogger(
+        experiment_name='Dice_Roll_Experiment',
+        tracking_uri='http://127.0.0.1:5000',
+        save_dir='../mlruns',
+        run_name='best_model'
+    )
+
     best_params = study.best_params
     best_model = DiceClassifier(
         lr=best_params['lr'],
@@ -188,7 +195,7 @@ if __name__ == '__main__':
     )
     trainer = L.Trainer(
         max_epochs=10,
-        logger=mlflow_logger,
+        logger=final_logger,
     )
     data_module = DiceDataModule()
     trainer.fit(best_model, data_module.train_dataloader(), data_module.val_dataloader())
