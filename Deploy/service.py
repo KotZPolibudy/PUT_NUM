@@ -14,9 +14,12 @@ target_names = ['setosa', 'versicolor', 'virginica']
     resources={"cpu": "2"},
     traffic={"timeout": 10},
 )
-class irisclassifier:
+
+
+
+class kotestKlasa:
     # Declare the model as a class attribute
-    bento_model = BentoModel("iris:latest")
+    bento_model = BentoModel("kotest:latest")
 
     def __init__(self):
         self.model = bentoml.mlflow.load_model(self.bento_model)

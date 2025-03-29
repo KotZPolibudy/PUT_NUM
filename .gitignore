@@ -175,3 +175,6 @@ mlruns/
 docker/postgres_data/
 /pytorch_lightning/docker/postgres_data/
 /pytorch_lightning/postgres_data/
+
+
+/Deploy/models/
