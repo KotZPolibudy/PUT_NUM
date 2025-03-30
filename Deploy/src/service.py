@@ -14,8 +14,7 @@ target_names = ['setosa', 'versicolor', 'virginica']
     resources={"cpu": "2"},
     traffic={"timeout": 10},
 )
-
-class kotestKlasa:
+class Kotest:
     # Declare the model as a class attribute
     bento_model = BentoModel("kotest:latest")
 
@@ -26,3 +25,5 @@ class kotestKlasa:
     def predict(self, input_data: np.ndarray) -> list[str]:
         preds = self.model.predict(input_data)
         return [target_names[i] for i in preds]
+
+#todo sprawdzić czy to będzie dobry input, czy nie trzeba jakiejś dziwnej struktury danych na ten obrazek mieć

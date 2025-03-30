@@ -24,5 +24,6 @@ def predict_image(image_path):
         print("Prediction:", response)
 
 if __name__ == "__main__":
-    image_path = "test_image.png"
+    image_path = "test_image.jpg"
     predict_image(image_path)
+    # todo sprawdzić czy to będzie dobry input, możliwe że trzeba zmienić w service.py

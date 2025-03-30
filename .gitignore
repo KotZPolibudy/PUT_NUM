@@ -179,3 +179,4 @@ docker/postgres_data/
 
 /Deploy/models/
 /Deploy/src/models/
+/Deploy/demo/models/
