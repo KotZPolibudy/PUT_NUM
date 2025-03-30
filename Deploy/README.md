@@ -38,6 +38,12 @@ client wysyła dokładnie to
 
 error: bentoml oczekuje list_type na wejściu
 
+known issue part 2:
+
+service przerobiony tak aby oczekiwał listy,
+klient tak, aby wysyłał odpowiednią listę
+ten sam error: Input should be a valid list
+
 Ważne linki:
 ``` 
 https://github.com/bentoml/BentoMLflow/tree/main
