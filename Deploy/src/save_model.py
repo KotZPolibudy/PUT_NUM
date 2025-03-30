@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import optuna
 import bentoml
 
+
 class DiceDataModule(L.LightningDataModule):
     def __init__(self, data_dir='../../data', batch_size=16, image_size=(64, 64)):
         super().__init__()
@@ -22,15 +23,6 @@ class DiceDataModule(L.LightningDataModule):
         self.image_size = image_size
         self.train_data = None
         self.val_data = None
-        # self.transform = transforms.Compose([
-        #   transforms.Grayscale(),
-        #   transforms.Resize(image_size),
-        #   transforms.RandomRotation(90),
-        #   transforms.RandomAffine(degrees=0, translate=(0.2, 0.2), shear=0.1),
-        #   transforms.RandomResizedCrop(self.image_size, scale=(0.9, 1.1)),
-        #   transforms.ToTensor(),
-        #   transforms.Normalize((0.5,), (0.5,))
-        # ])
         self.transform = transforms.Compose([
             transforms.Grayscale(),
             transforms.Resize(image_size),
