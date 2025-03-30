@@ -32,8 +32,11 @@ bentoml serve service.py:Kotest
 ```
 
 Notatka na teraz:
-trzeba sprawdzić service.py czy tam jest dobra struktura danych input/output czy nie trzeba zmienić, bo obecnie jest praktycznie to samo co w demo
-no i to czy dobrze wrzytuję obrazek, to też trzeba by sprawdzić bo może tam się walnąłem
+known issue:
+service oczekuje (wg. kodu) base64 encoded string jako input (obrazek)
+client wysyła dokładnie to
+
+error: bentoml oczekuje list_type na wejściu
 
 Ważne linki:
 ``` 
