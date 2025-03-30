@@ -151,7 +151,7 @@ def objective(trial):
 
     trial_logger = MLFlowLogger(
         experiment_name="Dice_Roll_Experiment",
-        tracking_uri="http://127.0.0.1:5000",
+        tracking_uri="http://127.0.0.1:8080",
         save_dir="../mlruns",
         run_name=f'trial_{trial.number}'
     )
@@ -184,7 +184,7 @@ if __name__ == '__main__':
 
     final_logger = MLFlowLogger(
         experiment_name='Dice_Roll_Experiment',
-        tracking_uri='http://127.0.0.1:5000',
+        tracking_uri='http://127.0.0.1:8080',
         save_dir='../mlruns',
         run_name='best_model'
     )

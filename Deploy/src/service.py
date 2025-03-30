@@ -15,8 +15,6 @@ target_names = ['setosa', 'versicolor', 'virginica']
     traffic={"timeout": 10},
 )
 
-
-
 class kotestKlasa:
     # Declare the model as a class attribute
     bento_model = BentoModel("kotest:latest")
