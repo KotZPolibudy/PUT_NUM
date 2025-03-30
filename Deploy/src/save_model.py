@@ -1,11 +1,5 @@
 from pathlib import Path
-
 import mlflow.sklearn
-from sklearn.datasets import load_iris
-from sklearn.neighbors import KNeighborsClassifier
-
-import bentoml
-
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -18,9 +12,10 @@ from torchvision import transforms, datasets
 
 import matplotlib.pyplot as plt
 import optuna
+import bentoml
 
 class DiceDataModule(L.LightningDataModule):
-    def __init__(self, data_dir='../data', batch_size=16, image_size=(64, 64)):
+    def __init__(self, data_dir='../../data', batch_size=16, image_size=(64, 64)):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size

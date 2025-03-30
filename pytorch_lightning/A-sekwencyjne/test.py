@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import optuna
 
 class DiceDataModule(L.LightningDataModule):
-    def __init__(self, data_dir='../data', batch_size=16, image_size=(64, 64)):
+    def __init__(self, data_dir='../../data', batch_size=16, image_size=(64, 64)):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
