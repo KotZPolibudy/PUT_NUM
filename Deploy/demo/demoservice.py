@@ -14,12 +14,9 @@ target_names = ['setosa', 'versicolor', 'virginica']
     resources={"cpu": "2"},
     traffic={"timeout": 10},
 )
-
-
-
-class kotestKlasa:
+class Kotest:
     # Declare the model as a class attribute
-    bento_model = BentoModel("kotest:latest")
+    bento_model = BentoModel("kotest-demo:latest")
 
     def __init__(self):
         self.model = bentoml.mlflow.load_model(self.bento_model)

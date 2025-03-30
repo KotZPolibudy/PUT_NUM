@@ -17,12 +17,16 @@ bentoml models delete <name>
 
 Obecnie wgrany jest przykład na iris, więc powinno się udać z:
 ```
-bentoml serve service.py:kotest
+bentoml serve demoservice.py:Kotest
 ```
+Upewnij się że jesteś w PUT_NUM/Deploy/demo!!!
 
-Dlaczego nie działa? 
-Jeszcze nie wiem, ale to pierwszy commit itd więc rzucam żebyś coś widział.
+Potem uruchamiając client.py jesteś w stanie wrzucać zapytania.
 
+Teraz, zmieniając miejsce na:
+PUT_NUM/Deploy/src
+
+i tutaj już nie demoservice.py tylko service.py
 
 Ważne linki:
 ``` 
