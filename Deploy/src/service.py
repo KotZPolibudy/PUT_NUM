@@ -37,14 +37,13 @@ class Kotest:
         return image_tensor.numpy()
 
     @bentoml.api
-    def predict(self, input_data: str) -> list:
+    def predict(self, input_data: list) -> list:
         """
-        Oczekuje wejścia jako base64-encoded string.
+        Oczekuje wejścia jako lista base64-encoded stringów.
         """
         try:
-            image_bytes = base64.b64decode(input_data)
-            processed_image = self.preprocess_image(image_bytes)
-            preds = self.model.predict(processed_image)
-            return preds.tolist()
+            processed_images = [self.preprocess_image(base64.b64decode(img)) for img in input_data]
+            preds = [self.model.predict(img) for img in processed_images]
+            return [pred.tolist() for pred in preds]
         except Exception as e:
             return {"error": str(e)}
