@@ -90,6 +90,12 @@ class DiceClassifier(L.LightningModule):
     def forward(self, x):
         return self.model(x)
 
+    def predict(self, x):
+        return self.model(x)
+
+    def predict_step(self, x):
+        return self.model(x)
+
     def training_step(self, batch, batch_idx):
         x, y = batch
         logits = self(x)
@@ -169,7 +175,7 @@ if __name__ == '__main__':
         direction='minimize',
         load_if_exists=True
     )
-    study.optimize(objective, n_trials=6)
+    study.optimize(objective, n_trials=1)
 
     print('Best hyperparameters found: ', study.best_params)
     print('Best validation loss: ', study.best_value)
