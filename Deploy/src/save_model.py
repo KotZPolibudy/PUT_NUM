@@ -176,7 +176,7 @@ if __name__ == '__main__':
         direction='minimize',
         load_if_exists=True
     )
-    study.optimize(objective, n_trials=20)
+    study.optimize(objective, n_trials=6)
 
     print('Best hyperparameters found: ', study.best_params)
     print('Best validation loss: ', study.best_value)
@@ -205,8 +205,28 @@ if __name__ == '__main__':
     current_date = datetime.now().strftime("%Y-%m-%d")
     model_uri = Path("models", f"KotestPath_{current_date}")
 
-    # model.fit(X_train, Y_train)
-    mlflow.sklearn.save_model(best_model, model_uri.resolve())
+
+    def get_unique_model_uri(base_uri):
+        if base_uri.exists():
+            if any(base_uri.iterdir()):  # Jeśli folder nie jest pusty
+                # Szukamy unikalnej nazwy z numerem na końcu
+                counter = 1
+                while True:
+                    new_uri = base_uri.with_name(f"{base_uri.stem}_{counter}{base_uri.suffix}")
+                    if not new_uri.exists() or not any(new_uri.iterdir()):
+                        return new_uri
+                    counter += 1
+            else:
+                print(f"Folder {base_uri} już istnieje, ale jest pusty. Można zapisać model.")
+                return base_uri
+        return base_uri
+
+
+    unique_model_uri = get_unique_model_uri(model_uri)
+
+    unique_model_uri.mkdir(parents=True, exist_ok=True)
+
+    mlflow.sklearn.save_model(best_model, str(unique_model_uri.resolve()))
     # model_uri can be any URI that refers to an MLflow model
     # Use local path for demostration
     # bentoml.mlflow.import_model("kotest", model_uri)

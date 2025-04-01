@@ -1,0 +1,1 @@
+Best hyperparameters found:  {'lr': 0.0008945981985897909, 'hidden_units': 174, 'optimizer_type': 'adam', 'activation_function': 'leaky_relu'}
