@@ -28,21 +28,11 @@ PUT_NUM/Deploy/src
 
 i tutaj już nie demoservice.py tylko service.py
 ```
-bentoml serve service.py:Kotest
+bentoml serve service.py:svc
 ```
 
-Notatka na teraz:
-known issue:
-service oczekuje (wg. kodu) base64 encoded string jako input (obrazek)
-client wysyła dokładnie to
+teraz już wystarczy uruchomić klienta albo jakkolwiek inaczej wysłać zapytanie do serwisu bento i mamy to ;)
 
-error: bentoml oczekuje list_type na wejściu
-
-known issue part 2:
-
-service przerobiony tak aby oczekiwał listy,
-klient tak, aby wysyłał odpowiednią listę
-ten sam error: Input should be a valid list
 
 Ważne linki:
 ``` 

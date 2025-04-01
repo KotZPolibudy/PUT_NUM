@@ -1,9 +1,9 @@
 import bentoml
-import io
-from PIL import Image
 import torch
 import torchvision.transforms as transforms
+from PIL import Image
 from bentoml.io import Image as BentoImage, JSON
+import numpy as np
 
 # Transformacja obrazu
 transform = transforms.Compose([
@@ -13,24 +13,26 @@ transform = transforms.Compose([
     transforms.Normalize((0.5,), (0.5,))
 ])
 
-# Definicja serwisu w BentoML
-@bentoml.service()
-class Kotest:
-    def __init__(self):
-        self.model = bentoml.mlflow.load_model("kotest:latest")
+model_ref = bentoml.mlflow.get("kotest:latest")
+runner = model_ref.to_runner()
 
-    def preprocess_image(self, image: Image.Image) -> torch.Tensor:
-        image = transform(image).unsqueeze(0)
-        return image
+svc = bentoml.Service("kotest_service", runners=[runner])
 
-    @bentoml.api(input_spec=BentoImage, output_spec=JSON)
-    async def predict(self, image: Image.Image):
-        """
-        Oczekuje obrazu jako pliku przesłanego w multipart/form-data.
-        """
-        try:
-            processed_image = self.preprocess_image(image)
-            pred = self.model(processed_image)
-            return {"prediction": pred.tolist()}
-        except Exception as e:
-            return {"error": str(e)}
+def preprocess_image(image: Image.Image) -> torch.Tensor:
+    """Konwertuje obraz na tensor zgodnie z wymaganiami modelu."""
+    image = transform(image).unsqueeze(0)  # Dodanie wymiaru batcha
+    return image
+
+@svc.api(input=BentoImage(), output=JSON())
+async def predict(image: Image.Image):
+    """
+    Oczekuje obrazu jako pliku przesłanego w multipart/form-data.
+    """
+    try:
+        processed_image = preprocess_image(image)
+        pred = await runner.async_run(processed_image)
+        pred_numpy = pred.detach().cpu().numpy()
+        return {"prediction": pred_numpy}
+        # return {"prediction": int(np.argmax(pred_numpy))}
+    except Exception as e:
+        return {"error": str(e)}

@@ -13,6 +13,7 @@ from torchvision import transforms, datasets
 import matplotlib.pyplot as plt
 import optuna
 import bentoml
+from datetime import datetime
 
 
 class DiceDataModule(L.LightningDataModule):
@@ -201,7 +202,8 @@ if __name__ == '__main__':
     data_module = DiceDataModule()
     trainer.fit(best_model, data_module.train_dataloader(), data_module.val_dataloader())
 
-    model_uri = Path("models", "KotestPath")
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    model_uri = Path("models", f"KotestPath_{current_date}")
 
     # model.fit(X_train, Y_train)
     mlflow.sklearn.save_model(best_model, model_uri.resolve())
