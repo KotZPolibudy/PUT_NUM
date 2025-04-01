@@ -18,10 +18,12 @@ runner = model_ref.to_runner()
 
 svc = bentoml.Service("kotest_service", runners=[runner])
 
+
 def preprocess_image(image: Image.Image) -> torch.Tensor:
     """Konwertuje obraz na tensor zgodnie z wymaganiami modelu."""
     image = transform(image).unsqueeze(0)  # Dodanie wymiaru batcha
     return image
+
 
 @svc.api(input=BentoImage(), output=JSON())
 async def predict(image: Image.Image):
