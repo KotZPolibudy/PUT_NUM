@@ -176,7 +176,7 @@ if __name__ == '__main__':
         direction='minimize',
         load_if_exists=True
     )
-    study.optimize(objective, n_trials=1)
+    study.optimize(objective, n_trials=20)
 
     print('Best hyperparameters found: ', study.best_params)
     print('Best validation loss: ', study.best_value)
@@ -209,4 +209,4 @@ if __name__ == '__main__':
     mlflow.sklearn.save_model(best_model, model_uri.resolve())
     # model_uri can be any URI that refers to an MLflow model
     # Use local path for demostration
-    bentoml.mlflow.import_model("kotest", model_uri)
+    # bentoml.mlflow.import_model("kotest", model_uri)
