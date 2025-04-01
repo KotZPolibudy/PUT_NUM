@@ -176,7 +176,7 @@ if __name__ == '__main__':
         direction='minimize',
         load_if_exists=True
     )
-    study.optimize(objective, n_trials=6)
+    study.optimize(objective, n_trials=2)  # n_trials - change here
 
     print('Best hyperparameters found: ', study.best_params)
     print('Best validation loss: ', study.best_value)

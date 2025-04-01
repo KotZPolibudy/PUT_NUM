@@ -34,7 +34,7 @@ async def predict(image: Image.Image):
         processed_image = preprocess_image(image)
         pred = await runner.async_run(processed_image)
         pred_numpy = pred.detach().cpu().numpy()
-        return {"prediction": pred_numpy}
-        # return {"prediction": int(np.argmax(pred_numpy))}
+        # return {"prediction": pred_numpy}
+        return {"prediction": int(np.argmax(pred_numpy)) + 1}
     except Exception as e:
         return {"error": str(e)}

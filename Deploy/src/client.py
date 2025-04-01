@@ -15,7 +15,7 @@ def image_request(service_url, image):
 def main():
     service_url = "http://localhost:3000/predict"
 
-    image = Image.open("test_image4.jpg")
+    image = Image.open("test_image1.jpg")
     prediction = image_request(service_url=service_url, image=image)
 
     print(f"Predicted number: {prediction}")
