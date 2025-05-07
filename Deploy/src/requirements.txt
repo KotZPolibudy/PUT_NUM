@@ -1,0 +1,10 @@
+mlflow
+bentoml
+cloudpickle
+defusedxml
+lightning
+matplotlib
+numpy
+scikit-learn
+scipy
+torchvision

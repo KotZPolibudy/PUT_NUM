@@ -46,3 +46,20 @@ https://www.bentoml.com/blog/building-ml-pipelines-with-mlflow-and-bentoml
 Honorable mentions: 
  - Hindusi z youtube'a
  - dokumentacja BentoML
+
+# AWS
+Najważniejsza sprawa `--provenance=false` bez tego docker pushuje na repo 3 obrazy, z których ŻADEN nie jest kompatybilny ze strukturą AWSa. Zastosowanie tej flagi powoduje push 1 obrazu, który jest dokładnie taki jak spodziewa się AWS (oczywiście Amazon nic o tym nie mówi).
+
+Po zalogowaniu się credentialami odpowiednimi dla konta (id oraz region może się zmieniać w zależności, ale dla naszego będzie to zawsze tym)
+docker buildx build --platform linux/amd64 --provenance=false --push -t 694676321750.dkr.ecr.eu-central-1.amazonaws.com/kotest-repo:latest .
+
+Aby spushować na podłączony bucket plik:
+aws s3 cp .\test_image1.jpg s3://oskar-mlops-2025/
+
+
+Logowanie + push + update funkcji:
+aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 694676321750.dkr.ecr.eu-central-1.amazonaws.com
+
+docker buildx build --platform linux/amd64 --provenance=false --push -t 694676321750.dkr.ecr.eu-central-1.amazonaws.com/kotest-repo:latest .
+
+aws lambda update-function-code --function-name kotest-lambda-predict --image-uri 694676321750.dkr.ecr.eu-central-1.amazonaws.com/kotest-repo:latest --region eu-central-1
