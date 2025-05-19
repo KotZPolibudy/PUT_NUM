@@ -37,7 +37,8 @@ def authenticate_ecr(region, aws_account_id):
 def build_and_push_docker_image(repository_uri, repository_name, image_tag):
     print("Building Docker image:")
     docker_client.images.build(
-        path="C:\\Users\\oskki\\Desktop\\gitlab\\PUT_NUM\\Deploy\\src",
+        # path="C:\\Users\\oskki\\Desktop\\gitlab\\PUT_NUM\\Deploy\\src", #laptop
+        path="C:\\Users\\Oskar\\Desktop\\gitlab\\PUT_NUM\\Deploy\\src", #pc
         tag=f"{repository_name}:{image_tag}",
     )
     print("Docker image success")
@@ -55,7 +56,7 @@ def build_and_push_docker_image(repository_uri, repository_name, image_tag):
 
 
 if __name__ == "__main__":
-    repository_name = "kotest"
+    repository_name = "kotest-repo"
     image_tag = "latest"
 
     repository_uri = create_or_get_ecr_repository(repository_name)

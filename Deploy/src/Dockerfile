@@ -1,20 +1,18 @@
-FROM public.ecr.aws/lambda/python:3.11
+# FROM public.ecr.aws/lambda/python:3.10
+FROM kotest-repo:latest
 
-# Dodaj zależności systemowe potrzebne przez torch/Pillow (to ważne!)
-RUN yum install -y \
-    libjpeg-turbo-devel \
-    zlib-devel \
-    freetype-devel \
-    && yum clean all
+# Skopiuj wymagania i zainstaluj tylko potrzebne biblioteki
+# COPY requirements.txt ${LAMBDA_TASK_ROOT}
+# RUN pip install --upgrade pip
+# RUN pip install --no-cache-dir -r ${LAMBDA_TASK_ROOT}/requirements.txt
 
-# Zainstaluj wymagania
-COPY requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir torch torchvision lightning boto3
 
-# Skopiuj model i kod
+
+# Skopiuj wytrenowany model i aplikację
 COPY checkpoints/best_model.ckpt /opt/final_model.ckpt
-COPY . .
+COPY app.py ${LAMBDA_TASK_ROOT}
+COPY model.py ${LAMBDA_TASK_ROOT}
 
-# Wskazanie handlera (plik app.py, funkcja lambda_handler)
+# Określ punkt wejścia funkcji Lambda
 CMD ["app.lambda_handler"]
