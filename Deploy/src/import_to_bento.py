@@ -2,7 +2,7 @@ import mlflow
 import bentoml
 from pathlib import Path
 
-current_date = "2025-05-06"
+current_date = "2025-05-08"
 model_uri = Path("models", f"KotestPath_{current_date}")
 
 # Importowanie modelu MLflow do BentoML

@@ -5,6 +5,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 from torch.optim import Adam, SGD
 import lightning as L
+from lightning.pytorch.callbacks import ModelCheckpoint
 from datetime import datetime
 from save_model import DiceClassifier, DiceDataModule
 
@@ -35,13 +36,34 @@ if __name__ == "__main__":
         activation_function=best_params['activation_function']
     )
 
-    trainer = L.Trainer(max_epochs=10)
+    # Zapis najlepszego checkpointa
+    checkpoint_callback = ModelCheckpoint(
+        monitor="val_loss",
+        dirpath="checkpoints",
+        filename="best_model",
+        save_top_k=1,
+        mode="min"
+    )
+
+    trainer = L.Trainer(
+        max_epochs=10,
+        callbacks=[checkpoint_callback],
+        enable_model_summary=False,
+        enable_checkpointing=True,
+    )
+
     data_module = DiceDataModule()
     trainer.fit(best_model, data_module.train_dataloader(), data_module.val_dataloader())
 
+    # Ścieżka do najlepszego checkpointa (zapisz do Dockera później)
+    best_ckpt_path = checkpoint_callback.best_model_path
+    print(f"Best checkpoint saved at: {best_ckpt_path}")
+
+    # Zapisz również jako model MLflow, jeśli chcesz (opcjonalne)
     current_date = datetime.now().strftime("%Y-%m-%d")
     model_uri = Path("models", f"KotestPath_{current_date}")
     unique_model_uri = get_unique_model_uri(model_uri)
     unique_model_uri.mkdir(parents=True, exist_ok=True)
 
     mlflow.sklearn.save_model(best_model, str(unique_model_uri.resolve()))
+    print(f"Model saved at: {unique_model_uri.resolve()}")
